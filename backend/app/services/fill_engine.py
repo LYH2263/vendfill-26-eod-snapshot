@@ -47,3 +47,34 @@ def summarize(lines: list[FillLine]) -> dict:
         "overbooked_count": sum(1 for l in lines if l.status == "overbooked"),
         "lines": [asdict(l) for l in lines],
     }
+
+
+def _lane_brief(l: FillLine) -> dict:
+    return {
+        "lane_id": l.lane_id,
+        "slot_no": l.slot_no,
+        "sku_name": l.sku_name,
+        "capacity": l.capacity,
+        "stock": l.stock,
+        "in_transit": l.in_transit,
+        "gap": l.gap,
+    }
+
+
+def build_eod_package(lanes: list[dict]) -> dict:
+    """导出瞬间钉死的日终口径包：待补总件数 / 满仓货道 / 超占货道。
+
+    满仓与超占互斥：gap == 0 才进满仓，gap < 0 进超占，
+    超占道永远不会出现在满仓名单里。包内容只与传入快照有关，
+    调用方之后再改库存，本包不会随之变化。
+    """
+    lines = build_fill_lines(lanes)
+    s = summarize(lines)
+    return {
+        "total_fill": s["total_fill"],
+        "need_fill_count": s["need_fill_count"],
+        "full_count": s["full_count"],
+        "overbooked_count": s["overbooked_count"],
+        "full_lanes": [_lane_brief(l) for l in lines if l.status == "full"],
+        "overbooked_lanes": [_lane_brief(l) for l in lines if l.status == "overbooked"],
+    }
