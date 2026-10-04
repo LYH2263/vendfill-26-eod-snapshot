@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import CheckConstraint, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
 
@@ -12,6 +12,13 @@ class Location(Base):
 
 class Lane(Base):
     __tablename__ = "lanes"
+    # 容量必须为正、库存与在途不得为负；但刻意不约束 stock/in_transit <= capacity，
+    # 合法超占道（库存+在途超过容量）必须仍能存在。
+    __table_args__ = (
+        CheckConstraint("capacity > 0", name="ck_lanes_capacity_positive"),
+        CheckConstraint("stock >= 0", name="ck_lanes_stock_nonnegative"),
+        CheckConstraint("in_transit >= 0", name="ck_lanes_in_transit_nonnegative"),
+    )
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     location_id: Mapped[int] = mapped_column(ForeignKey("locations.id"))
     slot_no: Mapped[str] = mapped_column(String(16))
@@ -33,3 +40,13 @@ class RefillOrder(Base):
     location_id: Mapped[int] = mapped_column(ForeignKey("locations.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     lines_json: Mapped[str] = mapped_column(Text, default="[]")
+
+class EodExport(Base):
+    """日终口径包：导出瞬间钉死，之后库存变动不得回写本表。"""
+    __tablename__ = "eod_exports"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    exported_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    location_count: Mapped[int] = mapped_column(Integer, default=0)
+    total_fill: Mapped[int] = mapped_column(Integer, default=0)
+    payload_json: Mapped[str] = mapped_column(Text, default="{}")
+    sha256: Mapped[str] = mapped_column(String(64))

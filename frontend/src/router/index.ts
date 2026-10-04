@@ -5,6 +5,7 @@ const routes = [
   { path: '/lanes', name: 'Lanes', component: () => import('../views/Lanes.vue') },
   { path: '/sales', name: 'Sales', component: () => import('../views/Sales.vue') },
   { path: '/refills', name: 'Refills', component: () => import('../views/Refills.vue') },
+  { path: '/export', name: 'Export', component: () => import('../views/Export.vue') },
   { path: '/full', name: 'Full', component: () => import('../views/Full.vue') },
   { path: '/summary', name: 'Summary', component: () => import('../views/Summary.vue') },
   { path: '/', redirect: '/locations' },

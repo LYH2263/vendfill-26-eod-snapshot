@@ -115,6 +115,14 @@ h1 { margin: 0 0 0.25rem; font-size: 1.15rem; font-weight: 800; letter-spacing: 
 .vf-slot-fill { height: 100%; background: var(--vf-led); }
 .vf-slot-fill.vf-need { background: var(--vf-amber); }
 .vf-slot-meta { font-size: 0.62rem; color: var(--vf-dim); margin-top: 0.25rem; }
+.vf-slot-adj { display: flex; gap: 0.3rem; margin-top: 0.3rem; }
+.vf-adj-btn {
+  flex: 1; background: var(--vf-face); color: var(--vf-text);
+  border: 1px solid #3a4454; border-radius: 3px;
+  font-size: 0.72rem; line-height: 1.2; cursor: pointer; padding: 0.1rem 0;
+}
+.vf-adj-btn:hover { border-color: var(--vf-led); }
+.vf-adj-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* Receipt paper panel */
 .vf-receipt {
